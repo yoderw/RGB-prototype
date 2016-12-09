@@ -21,9 +21,16 @@ typedef struct Object
 typedef struct Level
 {
     std::vector<Object> objects;
-    virtual void init() = 0;
-    virtual void update() = 0;
-    virtual void deinit() = 0;
+    virtual void init();
+    virtual void update();
+    virtual void deinit();
 } Level;
+
+typedef struct TestLevel : public Level
+{
+    virtual void init();
+    virtual void update();
+    virtual void deinit();
+} TestLevel;
 
 #endif /* __GAMEPLAY_H__ */

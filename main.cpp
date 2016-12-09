@@ -26,6 +26,7 @@ static const uint32_t REN_FLAGS = SDL_RENDERER_PRESENTVSYNC;
 
 static bool running;
 static Controller globalController;
+static TestLevel *globalLevel;
 
 static const int LEVEL_W = 32;
 static const int LEVEL_H = 24;
@@ -83,8 +84,19 @@ static void renderLevel(SDL_Renderer *renderer, int level[LEVEL_H][LEVEL_W], Vec
     }
 }
 
+static void init()
+{
+    globalLevel->init();
+}
+
 static void update()
 {
+    globalLevel->update();
+}
+
+static void deinit()
+{
+    globalLevel->deinit();
 }
 
 static void render(SDL_Renderer *renderer)
@@ -103,6 +115,9 @@ int main(int argc, char **argv)
 
     running = true;
     SDL_Event event;
+
+    globalLevel = new TestLevel();
+    init();
 
     double previous = (double)SDL_GetTicks();
     double lag = 0.0;
@@ -154,6 +169,7 @@ int main(int argc, char **argv)
         render(renderer);
     }
 
+    deinit();
     SDL_Quit();
 
     return 0;
