@@ -15,11 +15,6 @@ typedef struct Color
     uint8_t r, g, b;
 } Color;
 
-typedef struct Player
-{
-    Controller controller;
-} Player;
-
 static const int N_COLORS = 5;
 static const Color COLORS[N_COLORS] = {
     { 0, 0, 0 },
@@ -34,6 +29,11 @@ typedef struct Controller
     Controller() : left(false), right(false), up(false), down(false) {}
     bool left, right, up, down;
 } Controller;
+
+typedef struct Player
+{
+    Controller controller;
+} Player;
 
 static const double FPS = 60;
 static const double MS_PER_UPDATE = 1000 / FPS;
