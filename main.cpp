@@ -99,11 +99,29 @@ static void deinit()
     globalLevel->deinit();
 }
 
+static void renderObject(SDL_Renderer *renderer, Object object)
+{
+    SDL_Rect rect;
+    rect.x = object.aabb.center.x - object.aabb.size.x / 2;
+    rect.y = object.aabb.center.y - object.aabb.size.y / 2;
+    rect.w = object.aabb.size.x;
+    rect.h = object.aabb.size.y;
+    SDL_SetRenderDrawColor(renderer, object.color.r, object.color.g, object.color.b, 255);
+    SDL_RenderFillRect(renderer, &rect);
+}
+
 static void render(SDL_Renderer *renderer)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     renderLevel(renderer, STATIC_LEVEL, Vector2i(LEVEL_W, LEVEL_H));
+
+    for (int objectIndex = 0; objectIndex < globalLevel->nObjects(); objectIndex++)
+    {
+        Object object = globalLevel->getObjectAtIndex(objectIndex);
+        renderObject(renderer, object);
+    }
+
     SDL_RenderPresent(renderer);
 }
 

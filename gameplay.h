@@ -2,6 +2,7 @@
 #define __GAMEPLAY_H__
 
 #include <vector>
+#include "utility.h"
 
 typedef struct Controller
 {
@@ -12,10 +13,12 @@ typedef struct Controller
 typedef struct Object
 {
     Controller controller;
+    AABBi aabb;
+    Color color;
     bool playable;
-    virtual void init() = 0;
-    virtual void update() = 0;
-    virtual void deinit() = 0;
+    virtual void init();
+    virtual void update();
+    virtual void deinit();
 } Object;
 
 typedef struct Level
@@ -24,6 +27,8 @@ typedef struct Level
     virtual void init();
     virtual void update();
     virtual void deinit();
+    Object getObjectAtIndex(size_t index);
+    size_t nObjects();
 } Level;
 
 typedef struct TestLevel : public Level
