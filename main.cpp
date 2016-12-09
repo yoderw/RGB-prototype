@@ -1,19 +1,7 @@
 #include <stdint.h>
 #include <iostream>
 #include <SDL2/SDL.h>
-
-typedef struct Vector2i
-{
-    Vector2i(int x, int y) : x(x), y(y) {}
-    int x, y;
-} Vector2i;
-
-typedef struct Color
-{
-    Color() : r(0), g(0), b(0) {}
-    Color(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b) {}
-    uint8_t r, g, b;
-} Color;
+#include "utility.h"
 
 static const int N_COLORS = 5;
 static const Color COLORS[N_COLORS] = {
