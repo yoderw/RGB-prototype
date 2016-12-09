@@ -1,7 +1,8 @@
-#include <stdint.h>
 #include <iostream>
+#include <stdint.h>
 #include <SDL2/SDL.h>
 #include "utility.h"
+#include "gameplay.h"
 
 static const int N_COLORS = 5;
 static const Color COLORS[N_COLORS] = {
@@ -11,17 +12,6 @@ static const Color COLORS[N_COLORS] = {
     { 0, 255, 0 },
     { 0, 0, 255 },
 };
-
-typedef struct Controller
-{
-    Controller() : left(false), right(false), up(false), down(false) {}
-    bool left, right, up, down;
-} Controller;
-
-typedef struct Player
-{
-    Controller controller;
-} Player;
 
 static const double FPS = 60;
 static const double MS_PER_UPDATE = 1000 / FPS;

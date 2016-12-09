@@ -1,6 +1,8 @@
 #ifndef __UTILITY_H__
 #define __UTILITY_H__
 
+#include <vector>
+
 typedef struct Vector2i
 {
     Vector2i() : x(0), y(0) {}
@@ -21,6 +23,5 @@ typedef struct Color
     Color(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b) {}
     uint8_t r, g, b;
 } Color;
-
 
 #endif /* __UTILITY_H__ */
