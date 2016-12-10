@@ -31,15 +31,51 @@ static int STATIC_LEVEL[STATIC_LEVEL_H][STATIC_LEVEL_W] = {
     { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 };
 
+static const int DEFAULT_OBJECT_SPEED = 40;
+
+void Object::setVelocity(Vector2f velocity)
+{
+    _velocity = velocity;
+}
+
+Vector2f Object::getVelocity()
+{
+    return _velocity;
+}
+
+void Object::setAABB(AABBf aabb)
+{
+    _aabb = aabb;
+}
+
+AABBf Object::getAABB()
+{
+    return _aabb;
+}
 
 void Object::init()
 {
     std::cout << "Object Init" << std::endl;
 }
 
-void Object::update()
+void Object::update(double dt)
 {
     std::cout << "Object Update" << std::endl;
+    if (controller.left == controller.right) _velocity.x = 0;
+    else
+    {
+        if (controller.left) _velocity.x = -DEFAULT_OBJECT_SPEED;
+        if (controller.right) _velocity.x = DEFAULT_OBJECT_SPEED;
+    }
+    if (controller.up == controller.down) _velocity.y = 0;
+    else
+    {
+        if (controller.up) _velocity.y = -DEFAULT_OBJECT_SPEED;
+        if (controller.down) _velocity.y = DEFAULT_OBJECT_SPEED;
+    }
+
+    _aabb.center.x += _velocity.x * dt;
+    _aabb.center.y += _velocity.y * dt;
 }
 
 void Object::deinit()
@@ -66,9 +102,15 @@ void Level::init()
     std::cout << "Level Init" << std::endl;
 }
 
-void Level::update()
+void Level::update(double dt)
 {
     std::cout << "Level Update" << std::endl;
+    for (int objectIndex = 0; objectIndex < objects.size(); objectIndex++)
+    {
+        Object &object = objects[objectIndex];
+        if (object.playable) Events::updateController(object.controller);
+        object.update(dt);
+    }
 }
 
 void Level::deinit()
@@ -102,12 +144,9 @@ void TestLevel::init()
 {
     Level::init();
 
-    Object playerObject;
+    AABBf aabb(Vector2f(100, 100), Vector2f(32, 32));
+    Object playerObject(Vector2f(), aabb);
     playerObject.playable = true;
-    playerObject.aabb.size.x = 32;
-    playerObject.aabb.size.y = 32;
-    playerObject.aabb.center.x = 100;
-    playerObject.aabb.center.y = 100;
     playerObject.color = Color(255, 255, 255);
     objects.push_back(playerObject);
 
@@ -118,15 +157,9 @@ void TestLevel::init()
     }
 }
 
-void TestLevel::update()
+void TestLevel::update(double dt)
 {
-    Level::update();
-
-    for (int objectIndex = 0; objectIndex < objects.size(); objectIndex++)
-    {
-        Object &object = objects[objectIndex];
-        object.update();
-    }
+    Level::update(dt);
 }
 
 void TestLevel::deinit()

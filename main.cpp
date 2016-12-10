@@ -4,6 +4,7 @@
 #include "utility.h"
 #include "gameplay.h"
 #include "constants.h"
+#include "events.h"
 
 static const int N_COLORS = 5;
 static const Color COLORS[N_COLORS] = {
@@ -58,26 +59,30 @@ static void renderLevel(SDL_Renderer *renderer)
 
 static void init()
 {
+    Events::init();
     globalLevel->init();
 }
 
-static void update()
+static void update(double dt)
 {
-    globalLevel->update();
+    Events::update();
+    globalLevel->update(dt);
 }
 
 static void deinit()
 {
+    Events::deinit();
     globalLevel->deinit();
 }
 
 static void renderObject(SDL_Renderer *renderer, Object object)
 {
     SDL_Rect rect;
-    rect.x = object.aabb.center.x - object.aabb.size.x / 2;
-    rect.y = object.aabb.center.y - object.aabb.size.y / 2;
-    rect.w = object.aabb.size.x;
-    rect.h = object.aabb.size.y;
+    AABBf aabb = object.getAABB();
+    rect.x = aabb.center.x - aabb.size.x / 2;
+    rect.y = aabb.center.y - aabb.size.y / 2;
+    rect.w = aabb.size.x;
+    rect.h = aabb.size.y;
     SDL_SetRenderDrawColor(renderer, object.color.r, object.color.g, object.color.b, 255);
     SDL_RenderFillRect(renderer, &rect);
 }
@@ -119,40 +124,11 @@ int main(int argc, char **argv)
         previous = current;
         lag += elapsed;
 
-        while (SDL_PollEvent(&event))
-        {
-            switch (event.type)
-            {
-                case SDL_QUIT:
-                {
-                    running = false;
-                } break;
-                case SDL_KEYDOWN:
-                {
-                    switch (event.key.keysym.sym)
-                    {
-                        case SDLK_LEFT: globalController.left = true; break;
-                        case SDLK_RIGHT: globalController.right = true; break;
-                        case SDLK_UP: globalController.up = true; break;
-                        case SDLK_DOWN: globalController.down = true; break;
-                    }
-                } break;
-                case SDL_KEYUP:
-                {
-                    switch (event.key.keysym.sym)
-                    {
-                        case SDLK_LEFT: globalController.left = false; break;
-                        case SDLK_RIGHT: globalController.right = false; break;
-                        case SDLK_UP: globalController.up = false; break;
-                        case SDLK_DOWN: globalController.down = false; break;
-                    }
-                } break;
-            }
-        }
+        running = Events::process();
 
         while (lag >= MS_PER_UPDATE)
         {
-            update();
+            update(elapsed / 1000.0);
             lag -= MS_PER_UPDATE;
         }
 

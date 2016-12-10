@@ -1,24 +1,29 @@
 #ifndef __GAMEPLAY_H__
 #define __GAMEPLAY_H__
 
+#include <stdio.h>
 #include <vector>
+#include <SDL2/SDL.h>
 #include "utility.h"
-
-typedef struct Controller
-{
-    Controller() : left(false), right(false), up(false), down(false) {}
-    bool left, right, up, down;
-} Controller;
+#include "events.h"
 
 typedef struct Object
 {
+    Object() : _velocity(Vector2f()), _aabb(AABBf()) {}
+    Object(Vector2f velocity, AABBf aabb) : _velocity(velocity), _aabb(aabb) {}
     Controller controller;
-    AABBi aabb;
     Color color;
     bool playable;
+    void setVelocity(Vector2f velocity);
+    Vector2f getVelocity();
+    void setAABB(AABBf aabb);
+    AABBf getAABB();
     virtual void init();
-    virtual void update();
+    virtual void update(double dt);
     virtual void deinit();
+    private:
+        AABBf _aabb;
+        Vector2f _velocity;
 } Object;
 
 typedef struct Level
@@ -26,7 +31,7 @@ typedef struct Level
     Level();
     std::vector<Object> objects;
     virtual void init();
-    virtual void update();
+    virtual void update(double dt);
     virtual void deinit();
     Object getObjectAtIndex(size_t index);
     size_t nObjects();
@@ -40,7 +45,7 @@ typedef struct Level
 typedef struct TestLevel : public Level
 {
     virtual void init();
-    virtual void update();
+    virtual void update(double dt);
     virtual void deinit();
 } TestLevel;
 

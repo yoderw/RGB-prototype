@@ -10,12 +10,28 @@ typedef struct Vector2i
     int x, y;
 } Vector2i;
 
+typedef struct Vector2f
+{
+    Vector2f() : x(0), y(0) {}
+    Vector2f(float x, float y) : x(x), y(y) {}
+    float x, y;
+} Vector2f;
+
 typedef struct AABBi
 {
     AABBi() : center(Vector2i()), size(Vector2i()) {}
+    AABBi(Vector2i center, Vector2i size) : center(center), size(size) {}
     Vector2i center, size;
     bool intersects(AABBi other);
 } AABBi;
+
+typedef struct AABBf
+{
+    AABBf() : center(Vector2f()), size(Vector2f()) {}
+    AABBf(Vector2f center, Vector2f size) : center(center), size(size) {}
+    Vector2f center, size;
+    bool intersects(AABBf other);
+} AABBf;
 
 typedef struct Color
 {
