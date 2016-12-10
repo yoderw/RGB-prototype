@@ -23,12 +23,18 @@ typedef struct Object
 
 typedef struct Level
 {
+    Level();
     std::vector<Object> objects;
     virtual void init();
     virtual void update();
     virtual void deinit();
     Object getObjectAtIndex(size_t index);
     size_t nObjects();
+    int getTileAtIndex(Vector2i index);
+    Vector2i getSize();
+    private:
+        Vector2i _size;
+        int **_levelData;
 } Level;
 
 typedef struct TestLevel : public Level
