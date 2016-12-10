@@ -18,6 +18,7 @@ typedef struct Object
     Vector2i getSize();
     void setTilePos(Vector2i tilePos);
     Vector2i getTilePos();
+    Vector2i getNextTilePos();
     double getInterpolation();
     virtual void init();
     virtual void update(double dt);

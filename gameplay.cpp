@@ -31,7 +31,7 @@ static int STATIC_LEVEL[STATIC_LEVEL_H][STATIC_LEVEL_W] = {
     { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 };
 
-static const double DEFAULT_TILES_PER_SECOND = 0.5;
+static const double DEFAULT_TILES_PER_SECOND = 0.2;
 
 void Object::setSize(Vector2i size)
 {
@@ -51,6 +51,11 @@ void Object::setTilePos(Vector2i tilePos)
 Vector2i Object::getTilePos()
 {
     return _tilePos;
+}
+
+Vector2i Object::getNextTilePos()
+{
+    return _nextTilePos;
 }
 
 double Object::getInterpolation()

@@ -12,6 +12,14 @@ bool Vector2f::equals(Vector2f other)
     return x == other.x && y == other.y;
 }
 
+Vector2f Vector2f::lerp(Vector2f other, double interp)
+{
+    Vector2f newVector;
+    newVector.x = x + (other.x - x) * interp;
+    newVector.y = y + (other.y - y) * interp;
+    return newVector;
+}
+
 bool AABBi::intersects(AABBi o)
 {
     return center.x < o.center.x + o.size.x &&

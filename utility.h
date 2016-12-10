@@ -16,6 +16,7 @@ typedef struct Vector2f
     Vector2f() : x(0), y(0) {}
     Vector2f(float x, float y) : x(x), y(y) {}
     bool equals(Vector2f other);
+    Vector2f lerp(Vector2f other, double interp);
     float x, y;
 } Vector2f;
 

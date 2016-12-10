@@ -79,9 +79,13 @@ static void renderObject(SDL_Renderer *renderer, Object object)
 {
     SDL_Rect rect;
     Vector2i tilePos = object.getTilePos();
+    Vector2i nextTilePos = object.getNextTilePos();
     Vector2i size = object.getSize();
-    rect.x = tilePos.x * TILE_SIZE + TILE_SIZE / 2 - size.x / 2;
-    rect.y = tilePos.y * TILE_SIZE + TILE_SIZE / 2 - size.y / 2;
+    Vector2f originalPos = Vector2f(tilePos.x * TILE_SIZE, tilePos.y * TILE_SIZE);
+    Vector2f nextPos = Vector2f(nextTilePos.x * TILE_SIZE, nextTilePos.y * TILE_SIZE);
+    Vector2f newPos = originalPos.lerp(nextPos, object.getInterpolation());
+    rect.x = newPos.x + TILE_SIZE / 2 - size.x / 2;
+    rect.y = newPos.y + TILE_SIZE / 2 - size.y / 2;
     rect.w = size.x;
     rect.h = size.y;
     SDL_SetRenderDrawColor(renderer, object.color.r, object.color.g, object.color.b, 255);
