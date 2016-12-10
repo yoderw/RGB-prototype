@@ -7,6 +7,7 @@ typedef struct Vector2i
 {
     Vector2i() : x(0), y(0) {}
     Vector2i(int x, int y) : x(x), y(y) {}
+    bool equals(Vector2i other);
     int x, y;
 } Vector2i;
 
@@ -14,6 +15,7 @@ typedef struct Vector2f
 {
     Vector2f() : x(0), y(0) {}
     Vector2f(float x, float y) : x(x), y(y) {}
+    bool equals(Vector2f other);
     float x, y;
 } Vector2f;
 
@@ -39,5 +41,10 @@ typedef struct Color
     Color(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b) {}
     uint8_t r, g, b;
 } Color;
+
+namespace Utility
+{
+    bool doubleCloseToDouble(double d1, double d2, double epsilon);
+}
 
 #endif /* __UTILITY_H__ */

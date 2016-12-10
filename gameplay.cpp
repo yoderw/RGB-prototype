@@ -31,56 +31,100 @@ static int STATIC_LEVEL[STATIC_LEVEL_H][STATIC_LEVEL_W] = {
     { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 };
 
-static const int DEFAULT_OBJECT_SPEED = 40;
+static const double DEFAULT_TILES_PER_SECOND = 0.5;
 
-void Object::setVelocity(Vector2f velocity)
+void Object::setSize(Vector2i size)
 {
-    _velocity = velocity;
+    _size = size;
 }
 
-Vector2f Object::getVelocity()
+Vector2i Object::getSize()
 {
-    return _velocity;
+    return _size;
 }
 
-void Object::setAABB(AABBf aabb)
+void Object::setTilePos(Vector2i tilePos)
 {
-    _aabb = aabb;
+    _tilePos = tilePos;
 }
 
-AABBf Object::getAABB()
+Vector2i Object::getTilePos()
 {
-    return _aabb;
+    return _tilePos;
+}
+
+double Object::getInterpolation()
+{
+    return _interpolation;
 }
 
 void Object::init()
 {
-    std::cout << "Object Init" << std::endl;
 }
 
 void Object::update(double dt)
 {
-    std::cout << "Object Update" << std::endl;
-    if (controller.left == controller.right) _velocity.x = 0;
-    else
+    _interpolating = !_tilePos.equals(_nextTilePos);
+    if (_interpolating)
     {
-        if (controller.left) _velocity.x = -DEFAULT_OBJECT_SPEED;
-        if (controller.right) _velocity.x = DEFAULT_OBJECT_SPEED;
+        _interpolationTimer += dt;
+        _interpolation = _interpolationTimer / DEFAULT_TILES_PER_SECOND;
+        if (_interpolation >= 1.0)
+        {
+            _interpolation = 0.0;
+            _interpolationTimer = 0.0;
+            _tilePos = _nextTilePos;
+        }
     }
-    if (controller.up == controller.down) _velocity.y = 0;
-    else
-    {
-        if (controller.up) _velocity.y = -DEFAULT_OBJECT_SPEED;
-        if (controller.down) _velocity.y = DEFAULT_OBJECT_SPEED;
-    }
-
-    _aabb.center.x += _velocity.x * dt;
-    _aabb.center.y += _velocity.y * dt;
 }
 
 void Object::deinit()
 {
-    std::cout << "Object Deinit" << std::endl;
+}
+
+void Object::_goLeft()
+{
+    if (_interpolating) return;
+    _nextTilePos.x--;
+}
+
+void Object::_goRight()
+{
+    if (_interpolating) return;
+    _nextTilePos.x++;
+}
+
+void Object::_goUp()
+{
+    if (_interpolating) return;
+    _nextTilePos.y--;
+}
+
+void Object::_goDown()
+{
+    if (_interpolating) return;
+    _nextTilePos.y++;
+}
+
+void TestObject::init()
+{
+    Object::init();
+    playable = true;
+    color = Color(255, 255, 255);
+}
+
+void TestObject::update(double dt)
+{
+    Object::update(dt);
+    if (controller.left) _goLeft();
+    if (controller.right) _goRight();
+    if (controller.up) _goUp();
+    if (controller.down) _goDown();
+}
+
+void TestObject::deinit()
+{
+    Object::deinit();
 }
 
 Level::Level()
@@ -99,29 +143,26 @@ Level::Level()
 
 void Level::init()
 {
-    std::cout << "Level Init" << std::endl;
 }
 
 void Level::update(double dt)
 {
-    std::cout << "Level Update" << std::endl;
     for (int objectIndex = 0; objectIndex < objects.size(); objectIndex++)
     {
-        Object &object = objects[objectIndex];
-        if (object.playable) Events::updateController(object.controller);
-        object.update(dt);
+        Object *object = objects[objectIndex];
+        if (object->playable) Events::updateController(object->controller);
+        object->update(dt);
     }
 }
 
 void Level::deinit()
 {
-    std::cout << "Level Deinit" << std::endl;
 }
 
 Object Level::getObjectAtIndex(size_t index)
 {
     if (index >= objects.size()) return Object();
-    return objects[index];
+    return *objects[index];
 }
 
 size_t Level::nObjects()
@@ -143,17 +184,13 @@ Vector2i Level::getSize()
 void TestLevel::init()
 {
     Level::init();
-
-    AABBf aabb(Vector2f(100, 100), Vector2f(32, 32));
-    Object playerObject(Vector2f(), aabb);
-    playerObject.playable = true;
-    playerObject.color = Color(255, 255, 255);
+    TestObject *playerObject = new TestObject(Vector2i(TILE_SIZE, TILE_SIZE), Vector2i(10, 10));
     objects.push_back(playerObject);
 
     for (int objectIndex = 0; objectIndex < objects.size(); objectIndex++)
     {
-        Object &object = objects[objectIndex];
-        object.init();
+        Object *object = objects[objectIndex];
+        object->init();
     }
 }
 
@@ -168,7 +205,7 @@ void TestLevel::deinit()
 
     for (int objectIndex = 0; objectIndex < objects.size(); objectIndex++)
     {
-        Object &object = objects[objectIndex];
-        object.deinit();
+        Object *object = objects[objectIndex];
+        object->deinit();
     }
 }

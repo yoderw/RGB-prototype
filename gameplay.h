@@ -9,27 +9,45 @@
 
 typedef struct Object
 {
-    Object() : _velocity(Vector2f()), _aabb(AABBf()) {}
-    Object(Vector2f velocity, AABBf aabb) : _velocity(velocity), _aabb(aabb) {}
+    Object(Vector2i size, Vector2i tilePos) : _size(size), _tilePos(tilePos), _nextTilePos(tilePos), _interpolating(false), _interpolation(0.0), _interpolationTimer(0.0) {}
+    Object() : Object(Vector2i(), Vector2i()) {}
     Controller controller;
     Color color;
     bool playable;
-    void setVelocity(Vector2f velocity);
-    Vector2f getVelocity();
-    void setAABB(AABBf aabb);
-    AABBf getAABB();
+    void setSize(Vector2i size);
+    Vector2i getSize();
+    void setTilePos(Vector2i tilePos);
+    Vector2i getTilePos();
+    double getInterpolation();
     virtual void init();
     virtual void update(double dt);
     virtual void deinit();
+    protected:
+        void _goLeft();
+        void _goRight();
+        void _goUp();
+        void _goDown();
     private:
-        AABBf _aabb;
-        Vector2f _velocity;
+        Vector2i _size;
+        Vector2i _tilePos;
+        Vector2i _nextTilePos;
+        bool _interpolating;
+        double _interpolation;
+        double _interpolationTimer;
 } Object;
+
+typedef struct TestObject : public Object
+{
+    TestObject(Vector2i size, Vector2i tilePos) : Object(size, tilePos) {}
+    virtual void init();
+    virtual void update(double dt);
+    virtual void deinit();
+} TestObject;
 
 typedef struct Level
 {
     Level();
-    std::vector<Object> objects;
+    std::vector<Object *> objects;
     virtual void init();
     virtual void update(double dt);
     virtual void deinit();

@@ -78,11 +78,12 @@ static void deinit()
 static void renderObject(SDL_Renderer *renderer, Object object)
 {
     SDL_Rect rect;
-    AABBf aabb = object.getAABB();
-    rect.x = aabb.center.x - aabb.size.x / 2;
-    rect.y = aabb.center.y - aabb.size.y / 2;
-    rect.w = aabb.size.x;
-    rect.h = aabb.size.y;
+    Vector2i tilePos = object.getTilePos();
+    Vector2i size = object.getSize();
+    rect.x = tilePos.x * TILE_SIZE + TILE_SIZE / 2 - size.x / 2;
+    rect.y = tilePos.y * TILE_SIZE + TILE_SIZE / 2 - size.y / 2;
+    rect.w = size.x;
+    rect.h = size.y;
     SDL_SetRenderDrawColor(renderer, object.color.r, object.color.g, object.color.b, 255);
     SDL_RenderFillRect(renderer, &rect);
 }
