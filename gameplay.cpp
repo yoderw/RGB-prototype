@@ -76,10 +76,16 @@ void playerCrateCollision(Object *o1, Object *o2)
     crate->move(dir);
 }
 
+void crateCrateCollision(Object *o1, Object *o2)
+{
+    TestCrate *crate1 = (TestCrate *)o1;
+    TestCrate *crate2 = (TestCrate *)o2;
+}
+
 static CollisionResponse *COLLISION_MATRIX[ObjectType_Count][ObjectType_Count] = {
     { new CollisionResponse(false, NULL), new CollisionResponse(false, NULL), new CollisionResponse(false, NULL) },
     { new CollisionResponse(false, NULL), new CollisionResponse(false, NULL), new CollisionResponse(true, playerCrateCollision) },
-    { new CollisionResponse(false, NULL), new CollisionResponse(true, playerCrateCollision), new CollisionResponse(false, NULL) },
+    { new CollisionResponse(false, NULL), new CollisionResponse(true, playerCrateCollision), new CollisionResponse(true, crateCrateCollision) },
 };
 
 static const double DEFAULT_TILES_PER_SECOND = 0.12;
@@ -186,7 +192,6 @@ void TestObject::init()
 {
     Object::init();
     playable = true;
-    color = Color(255, 255, 255);
 }
 
 void TestObject::update(double dt)
@@ -206,7 +211,6 @@ void TestObject::deinit()
 void TestCrate::init()
 {
     Object::init();
-    color = Color(0, 100, 0);
 }
 
 void TestCrate::update(double dt)
@@ -238,6 +242,11 @@ Level::Level()
 
 Level::~Level()
 {
+    for (int objectIndex = 0; objectIndex < objects.size(); objectIndex++)
+    {
+        delete objects[objectIndex];
+    }
+
     for (int y = 0; y < _size.y; y++)
     {
         free(_levelData[y]);
@@ -346,8 +355,9 @@ void TestLevel::init()
     Level::init();
     TestObject *playerObject = new TestObject(Vector2i(TILE_SIZE, TILE_SIZE), Vector2i(10, 10));
     objects.push_back(playerObject);
-    TestCrate *crateObject = new TestCrate();
-    objects.push_back(crateObject);
+    objects.push_back(new TestCrate(Vector2i(5, 5), Color(255, 255, 0, 100)));
+    objects.push_back(new TestCrate(Vector2i(6, 8), Color(255, 0, 0, 100)));
+    objects.push_back(new TestCrate(Vector2i(6, 8), Color(0, 0, 255, 100)));
 
     for (int objectIndex = 0; objectIndex < objects.size(); objectIndex++)
     {

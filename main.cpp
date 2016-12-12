@@ -8,11 +8,11 @@
 
 static const int N_COLORS = 5;
 static const Color COLORS[N_COLORS] = {
-    { 0, 0, 0 },
-    { 150, 150, 150 },
-    { 255, 0, 0 },
-    { 0, 255, 0 },
-    { 0, 0, 255 },
+    { 255, 255, 255, 255 },
+    { 150, 150, 150, 255 },
+    { 255, 0, 0, 255 },
+    { 0, 255, 0, 255 },
+    { 0, 0, 255, 255 },
 };
 
 static const double FPS = 60;
@@ -34,7 +34,7 @@ static void setFillColorForTileId(SDL_Renderer *renderer, int tileId)
 {
     Color color;
     if (tileId >= 0 && tileId < N_COLORS) color = COLORS[tileId];
-    else color = Color(0, 0, 0);
+    else color = Color(0, 0, 0, 255);
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
 }
 
@@ -78,6 +78,7 @@ static void deinit()
 static void renderObject(SDL_Renderer *renderer, Object object)
 {
     SDL_Rect rect;
+    Color color = object.color;
     Vector2i tilePos = object.getTilePos();
     Vector2i nextTilePos = object.getNextTilePos();
     Vector2i size = object.getSize();
@@ -88,13 +89,13 @@ static void renderObject(SDL_Renderer *renderer, Object object)
     rect.y = newPos.y + TILE_SIZE / 2 - size.y / 2;
     rect.w = size.x;
     rect.h = size.y;
-    SDL_SetRenderDrawColor(renderer, object.color.r, object.color.g, object.color.b, 255);
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &rect);
 }
 
 static void render(SDL_Renderer *renderer)
 {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
     renderLevel(renderer);
 
@@ -112,6 +113,7 @@ int main(int argc, char **argv)
     SDL_Init(SDL_INIT_EVERYTHING);
     SDL_Window *window = SDL_CreateWindow(WIN_TITLE, WIN_X, WIN_Y, WIN_W, WIN_H, WIN_FLAGS);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, REN_FLAGS);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     running = true;
     SDL_Event event;

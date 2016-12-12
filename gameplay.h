@@ -10,15 +10,15 @@
 typedef enum ObjectType
 {
     ObjectType_None = 0,
-    ObjectType_Player = 1,
-    ObjectType_Crate = 2,
-    ObjectType_Count = 3,
+    ObjectType_Player,
+    ObjectType_Crate,
+    ObjectType_Count,
 } ObjectType;
 
 typedef struct Object
 {
-    Object(Vector2i size, Vector2i tilePos, ObjectType type) : _size(size), _tilePos(tilePos), _nextTilePos(tilePos), _interpolating(false), _interpolation(0.0), _interpolationTimer(0.0), _type(type) {}
-    Object() : Object(Vector2i(), Vector2i(), ObjectType_None) {}
+    Object(Vector2i size, Vector2i tilePos, Color color,  ObjectType type) : _size(size), _tilePos(tilePos), _nextTilePos(tilePos), _interpolating(false), _interpolation(0.0), _interpolationTimer(0.0), _type(type), color(color) {}
+    Object() : Object(Vector2i(), Vector2i(), Color(255, 255, 255, 255), ObjectType_None) {}
     Controller controller;
     Color color;
     bool playable;
@@ -51,7 +51,7 @@ typedef struct Object
 
 typedef struct TestObject : public Object
 {
-    TestObject(Vector2i size, Vector2i tilePos) : Object(size, tilePos, ObjectType_Player) {}
+    TestObject(Vector2i size, Vector2i tilePos) : Object(size, tilePos, Color(0, 0, 0, 255), ObjectType_Player) {}
     virtual void init();
     virtual void update(double dt);
     virtual void deinit();
@@ -59,7 +59,7 @@ typedef struct TestObject : public Object
 
 typedef struct TestCrate : public Object
 {
-    TestCrate() : Object(Vector2i(32, 32), Vector2i(5, 5), ObjectType_Crate) {}
+    TestCrate(Vector2i position, Color color) : Object(Vector2i(32, 32), position, color, ObjectType_Crate) {}
     virtual void init();
     virtual void update(double dt);
     virtual void deinit();
