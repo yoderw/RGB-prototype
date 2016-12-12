@@ -7,9 +7,49 @@ bool Vector2i::equals(Vector2i other)
     return x == other.x && y == other.y;
 }
 
+Vector2i Vector2i::add(Vector2i other)
+{
+    return Vector2i(x + other.x, y + other.y);
+}
+
+Vector2i Vector2i::minus(Vector2i other)
+{
+    return Vector2i(x - other.x, y - other.y);
+}
+
+Vector2i Vector2i::multiply(Vector2i other)
+{
+    return Vector2i(x * other.x, y * other.y);
+}
+
+Vector2i Vector2i::multiply(double scalar)
+{
+    return Vector2i(x * scalar, y * scalar);
+}
+
 bool Vector2f::equals(Vector2f other)
 {
     return x == other.x && y == other.y;
+}
+
+Vector2f Vector2f::add(Vector2f other)
+{
+    return Vector2f(x + other.x, y + other.y);
+}
+
+Vector2f Vector2f::minus(Vector2f other)
+{
+    return Vector2f(x - other.x, y - other.y);
+}
+
+Vector2f Vector2f::multiply(Vector2f other)
+{
+    return Vector2f(x * other.x, y * other.y);
+}
+
+Vector2f Vector2f::multiply(double scalar)
+{
+    return Vector2f(x * scalar, y * scalar);
 }
 
 Vector2f Vector2f::lerp(Vector2f other, double interp)

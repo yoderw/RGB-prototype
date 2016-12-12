@@ -34,11 +34,11 @@ typedef struct Object
     virtual void init();
     virtual void update(double dt);
     virtual void deinit();
-    protected:
-        void _goLeft();
-        void _goRight();
-        void _goUp();
-        void _goDown();
+    void goLeft();
+    void goRight();
+    void goUp();
+    void goDown();
+    void move(Vector2i nextPos);
     private:
         ObjectType _type;
         Vector2i _size;

@@ -57,13 +57,32 @@ static int STATIC_LEVEL_MASK[STATIC_LEVEL_H][STATIC_LEVEL_W] = {
     { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 };
 
+void playerCrateCollision(Object *o1, Object *o2)
+{
+    TestObject *player;
+    TestCrate *crate;
+    if (o1->getType() == ObjectType_Player)
+    {
+        player = (TestObject *)o1;
+        crate = (TestCrate *)o2;
+    }
+    else
+    {
+        player = (TestObject *)o2;
+        crate = (TestCrate *)o1;
+    }
+
+    Vector2i dir = player->getTilePos().minus(crate->getTilePos()).multiply(-1);
+    crate->move(dir);
+}
+
 static CollisionResponse *COLLISION_MATRIX[ObjectType_Count][ObjectType_Count] = {
     { new CollisionResponse(false, NULL), new CollisionResponse(false, NULL), new CollisionResponse(false, NULL) },
-    { new CollisionResponse(false, NULL), new CollisionResponse(false, NULL), new CollisionResponse(true, NULL) },
-    { new CollisionResponse(false, NULL), new CollisionResponse(true, NULL), new CollisionResponse(false, NULL) },
+    { new CollisionResponse(false, NULL), new CollisionResponse(false, NULL), new CollisionResponse(true, playerCrateCollision) },
+    { new CollisionResponse(false, NULL), new CollisionResponse(true, playerCrateCollision), new CollisionResponse(false, NULL) },
 };
 
-static const double DEFAULT_TILES_PER_SECOND = 0.08;
+static const double DEFAULT_TILES_PER_SECOND = 0.12;
 
 void Object::setSize(Vector2i size)
 {
@@ -134,28 +153,33 @@ void Object::deinit()
 {
 }
 
-void Object::_goLeft()
+void Object::goLeft()
 {
     if (_interpolating) return;
     _nextTilePos.x--;
 }
 
-void Object::_goRight()
+void Object::goRight()
 {
     if (_interpolating) return;
     _nextTilePos.x++;
 }
 
-void Object::_goUp()
+void Object::goUp()
 {
     if (_interpolating) return;
     _nextTilePos.y--;
 }
 
-void Object::_goDown()
+void Object::goDown()
 {
     if (_interpolating) return;
     _nextTilePos.y++;
+}
+
+void Object::move(Vector2i nextPos)
+{
+    _nextTilePos = _nextTilePos.add(nextPos);
 }
 
 void TestObject::init()
@@ -168,10 +192,10 @@ void TestObject::init()
 void TestObject::update(double dt)
 {
     Object::update(dt);
-    if (controller.left && !(controller.down || controller.up)) _goLeft();
-    if (controller.right && !(controller.down || controller.up)) _goRight();
-    if (controller.up && !(controller.left || controller.right)) _goUp();
-    if (controller.down && !(controller.left || controller.right)) _goDown();
+    if (controller.left && !(controller.down || controller.up)) goLeft();
+    if (controller.right && !(controller.down || controller.up)) goRight();
+    if (controller.up && !(controller.left || controller.right)) goUp();
+    if (controller.down && !(controller.left || controller.right)) goDown();
 }
 
 void TestObject::deinit()
@@ -181,15 +205,18 @@ void TestObject::deinit()
 
 void TestCrate::init()
 {
-    color = Color(0, 255, 0);
+    Object::init();
+    color = Color(0, 100, 0);
 }
 
 void TestCrate::update(double dt)
 {
+    Object::update(dt);
 }
 
 void TestCrate::deinit()
 {
+    Object::deinit();
 }
 
 Level::Level()
@@ -231,11 +258,6 @@ void Level::update(double dt)
         Object *object = objects[objectIndex];
         if (object->playable) Events::updateController(object->controller);
         object->update(dt);
-
-        if (getMaskAtIndex(object->getNextTilePos()))
-        {
-            object->resetNextTilePos();
-        }
     }
 
     for (int objectIndex1 = 0; objectIndex1 < objects.size(); objectIndex1++)
@@ -250,22 +272,39 @@ void Level::update(double dt)
             CollisionResponse *response = COLLISION_MATRIX[type1][type2];
             if (response)
             {
+                if (response->callback)
+                {
+                    if (object1->getNextTilePos().equals(object2->getNextTilePos()))
+                    {
+                        response->callback(object1, object2);
+                        // Need to check collision twice.
+                        if (getMaskAtIndex(object1->getNextTilePos()))
+                        {
+                            object1->resetNextTilePos();
+                        }
+                        if (getMaskAtIndex(object2->getNextTilePos()))
+                        {
+                            object2->resetNextTilePos();
+                        }
+                    }
+                }
                 if (response->shouldCollide)
                 {
-                    if (object1->getNextTilePos().equals(object2->getTilePos()))
+                    if (object1->getNextTilePos().equals(object2->getNextTilePos()))
                     {
                         object1->resetNextTilePos();
                     }
-                    if (object2->getNextTilePos().equals(object1->getTilePos()))
-                    {
-                        object2->resetNextTilePos();
-                    }
-                }
-                if (response->callback)
-                {
-                    //response->callback(object1, object2);
                 }
             }
+        }
+    }
+
+    for (int objectIndex = 0; objectIndex < objects.size(); objectIndex++)
+    {
+        Object *object = objects[objectIndex];
+        if (getMaskAtIndex(object->getNextTilePos()))
+        {
+            object->resetNextTilePos();
         }
     }
 }

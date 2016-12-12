@@ -8,6 +8,10 @@ typedef struct Vector2i
     Vector2i() : x(0), y(0) {}
     Vector2i(int x, int y) : x(x), y(y) {}
     bool equals(Vector2i other);
+    Vector2i add(Vector2i other);
+    Vector2i minus(Vector2i other);
+    Vector2i multiply(Vector2i other);
+    Vector2i multiply(double scalar);
     int x, y;
 } Vector2i;
 
@@ -17,6 +21,10 @@ typedef struct Vector2f
     Vector2f(float x, float y) : x(x), y(y) {}
     bool equals(Vector2f other);
     Vector2f lerp(Vector2f other, double interp);
+    Vector2f add(Vector2f other);
+    Vector2f minus(Vector2f other);
+    Vector2f multiply(Vector2f other);
+    Vector2f multiply(double scalar);
     float x, y;
 } Vector2f;
 
