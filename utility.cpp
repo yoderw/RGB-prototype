@@ -76,6 +76,11 @@ bool AABBf::intersects(AABBf o)
         size.y + center.y > o.center.y;
 }
 
+bool Color::equals(Color other)
+{
+    return r == other.r && g == other.g && b == other.b && a == other.b;
+}
+
 namespace Utility
 {
     bool doubleCloseToDouble(double d1, double d2, double epsilon)

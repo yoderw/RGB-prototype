@@ -5,6 +5,8 @@
 #include "gameplay.h"
 #include "constants.h"
 #include "events.h"
+#include "state.h"
+#include "interface.h"
 
 static const int N_COLORS = 5;
 static const Color COLORS[N_COLORS] = {
@@ -28,7 +30,6 @@ static const uint32_t REN_FLAGS = SDL_RENDERER_PRESENTVSYNC;
 
 static bool running;
 static Controller globalController;
-static TestLevel *globalLevel;
 
 static void setFillColorForTileId(SDL_Renderer *renderer, int tileId)
 {
@@ -38,41 +39,41 @@ static void setFillColorForTileId(SDL_Renderer *renderer, int tileId)
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
 }
 
-static void renderLevel(SDL_Renderer *renderer)
+static void renderInterface(SDL_Renderer *renderer, Interface *interface)
+{
+    SDL_Rect rect;
+    for (int interIndex = 0; interIndex < interface->getCount(); interIndex++)
+    {
+        Interface* inter = interface->get(interIndex);
+        Color bgColor = inter->getBackgroundColor();
+        SDL_SetRenderDrawColor(renderer, bgColor.r, bgColor.g, bgColor.b, bgColor.a);
+        rect.w = inter->getSize().x;
+        rect.h = inter->getSize().y;
+        rect.x = inter->getPosition().x - rect.x / 2;
+        rect.y = inter->getPosition().y - rect.y / 2;
+        SDL_RenderFillRect(renderer, &rect);
+        if (inter->getCount() > 0) renderInterface(renderer, inter);
+    }
+}
+
+static void renderLevel(Level *level, SDL_Renderer *renderer)
 {
     SDL_Rect baseRect;
     baseRect.w = TILE_SIZE;
     baseRect.h = TILE_SIZE;
-    Vector2i size = globalLevel->getSize();
+    Vector2i size = level->getSize();
     for (int y = 0; y < size.y; y++)
     {
         for (int x = 0; x < size.x; x++)
         {
             baseRect.x = x * TILE_SIZE;
             baseRect.y = y * TILE_SIZE;
-            int tileId = globalLevel->getTileAtIndex(Vector2i(x, y));
+            int tileId = level->getTileAtIndex(Vector2i(x, y));
             setFillColorForTileId(renderer, tileId);
             SDL_RenderFillRect(renderer, &baseRect);
         }
     }
-}
-
-static void init()
-{
-    Events::init();
-    globalLevel->init();
-}
-
-static void update(double dt)
-{
-    Events::update();
-    globalLevel->update(dt);
-}
-
-static void deinit()
-{
-    Events::deinit();
-    globalLevel->deinit();
+    renderInterface(renderer, level->getInterface());
 }
 
 static void renderObject(SDL_Renderer *renderer, Object object)
@@ -93,15 +94,16 @@ static void renderObject(SDL_Renderer *renderer, Object object)
     SDL_RenderFillRect(renderer, &rect);
 }
 
-static void render(SDL_Renderer *renderer)
+static void render(StateMachine *machine, SDL_Renderer *renderer)
 {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
-    renderLevel(renderer);
+    Level *level = machine->getLevel();
+    renderLevel(level, renderer);
 
-    for (int objectIndex = 0; objectIndex < globalLevel->nObjects(); objectIndex++)
+    for (int objectIndex = 0; objectIndex < level->nObjects(); objectIndex++)
     {
-        Object object = globalLevel->getObjectAtIndex(objectIndex);
+        Object object = level->getObjectAtIndex(objectIndex);
         renderObject(renderer, object);
     }
 
@@ -118,8 +120,9 @@ int main(int argc, char **argv)
     running = true;
     SDL_Event event;
 
-    globalLevel = new TestLevel();
-    init();
+    StateMachine *machine = new StateMachine();
+    Events::init();
+    machine->init();
 
     double previous = (double)SDL_GetTicks();
     double lag = 0.0;
@@ -135,14 +138,16 @@ int main(int argc, char **argv)
 
         while (lag >= MS_PER_UPDATE)
         {
-            update(elapsed / 1000.0);
+            Events::update();
+            machine->update(elapsed / 1000.0);
             lag -= MS_PER_UPDATE;
         }
 
-        render(renderer);
+        render(machine, renderer);
     }
 
-    deinit();
+    Events::deinit();
+    machine->deinit();
     SDL_Quit();
 
     return 0;

@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 #include "utility.h"
 #include "events.h"
+#include "interface.h"
 
 typedef enum ObjectType
 {
@@ -65,9 +66,18 @@ typedef struct TestCrate : public Object
     virtual void deinit();
 } TestCrate;
 
+typedef enum LevelType
+{
+    LevelType_None,
+    LevelType_Open,
+    LevelType_Test,
+    LevelType_Edit,
+} LevelType;
+
 typedef struct Level
 {
-    Level();
+    Level(LevelType type);
+    Level() : Level(LevelType_None) {}
     ~Level();
     std::vector<Object *> objects;
     virtual void init();
@@ -78,14 +88,36 @@ typedef struct Level
     int getTileAtIndex(Vector2i index);
     int getMaskAtIndex(Vector2i index);
     Vector2i getSize();
+    LevelType getLevelType();
+    void setNextLevelType(LevelType type);
+    LevelType getNextLevelType();
+    Interface *getInterface();
     private:
+        LevelType _type;
+        LevelType _nextLevelType;
         Vector2i _size;
+        Interface *_interface;
         int **_levelData;
         int **_maskData;
 } Level;
 
+typedef struct OpenLevel : public Level
+{
+    OpenLevel() : Level(LevelType_Open) {}
+    virtual void init();
+} OpenLevel;
+
+typedef struct EditLevel : public Level
+{
+    EditLevel() : Level(LevelType_Edit) {}
+    virtual void init();
+    virtual void update(double dt);
+    virtual void deinit();
+} EditLevel;
+
 typedef struct TestLevel : public Level
 {
+    TestLevel() : Level(LevelType_Test) {}
     virtual void init();
     virtual void update(double dt);
     virtual void deinit();

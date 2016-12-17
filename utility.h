@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#define CAST(static_type, to_cast) ((static_type)to_cast)
+
 typedef struct Vector2i
 {
     Vector2i() : x(0), y(0) {}
@@ -48,6 +50,7 @@ typedef struct Color
 {
     Color() : r(0), g(0), b(0), a(0) {}
     Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : r(r), g(g), b(b), a(a) {}
+    bool equals(Color other);
     uint8_t r, g, b, a;
 } Color;
 
