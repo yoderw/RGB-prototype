@@ -23,15 +23,15 @@ typedef struct Object
     Controller controller;
     Color color;
     bool playable;
-    void setSize(Vector2i size);
-    Vector2i getSize();
-    void setTilePos(Vector2i tilePos);
-    Vector2i getTilePos();
-    void resetNextTilePos();
-    Vector2i getNextTilePos();
-    double getInterpolation();
-    bool isInterpolating();
-    ObjectType getType();
+    void setSize(Vector2i size) { _size = size; }
+    Vector2i getSize() { return _size; }
+    void setTilePos(Vector2i tilePos) { _tilePos = tilePos; }
+    Vector2i getTilePos() { return _tilePos; }
+    void resetNextTilePos() { _nextTilePos = _tilePos; }
+    Vector2i getNextTilePos() { return _nextTilePos; }
+    double getInterpolation() { return _interpolation; }
+    bool isInterpolating() { return _interpolating; }
+    ObjectType getType() { return _type; }
     virtual void init();
     virtual void update(double dt);
     virtual void deinit();
@@ -84,14 +84,14 @@ typedef struct Level
     virtual void update(double dt);
     virtual void deinit();
     Object getObjectAtIndex(size_t index);
-    size_t nObjects();
+    size_t nObjects() { return objects.size(); }
     int getTileAtIndex(Vector2i index);
+    Interface *getInterface() { return _interface; }
     int getMaskAtIndex(Vector2i index);
-    Vector2i getSize();
-    LevelType getLevelType();
-    void setNextLevelType(LevelType type);
-    LevelType getNextLevelType();
-    Interface *getInterface();
+    Vector2i getSize() { return _size; }
+    LevelType getLevelType() { return _type; }
+    void setNextLevelType(LevelType type) { _nextLevelType = type; }
+    LevelType getNextLevelType() { return _nextLevelType; }
     private:
         LevelType _type;
         LevelType _nextLevelType;

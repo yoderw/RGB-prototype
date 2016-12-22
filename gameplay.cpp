@@ -90,51 +90,6 @@ static CollisionResponse *COLLISION_MATRIX[ObjectType_Count][ObjectType_Count] =
 
 static const double DEFAULT_TILES_PER_SECOND = 0.12;
 
-void Object::setSize(Vector2i size)
-{
-    _size = size;
-}
-
-Vector2i Object::getSize()
-{
-    return _size;
-}
-
-void Object::setTilePos(Vector2i tilePos)
-{
-    _tilePos = tilePos;
-}
-
-Vector2i Object::getTilePos()
-{
-    return _tilePos;
-}
-
-void Object::resetNextTilePos()
-{
-    _nextTilePos = _tilePos;
-}
-
-Vector2i Object::getNextTilePos()
-{
-    return _nextTilePos;
-}
-
-double Object::getInterpolation()
-{
-    return _interpolation;
-}
-
-bool Object::isInterpolating()
-{
-    return _interpolating;
-}
-
-ObjectType Object::getType()
-{
-    return _type;
-}
-
 void Object::init()
 {
 }
@@ -344,11 +299,6 @@ Object Level::getObjectAtIndex(size_t index)
     return *objects[index];
 }
 
-size_t Level::nObjects()
-{
-    return objects.size();
-}
-
 int Level::getTileAtIndex(Vector2i index)
 {
     if (index.x >= _size.x || index.y < 0 || index.y >= _size.y || index.y < 0) return -1;
@@ -361,34 +311,10 @@ int Level::getMaskAtIndex(Vector2i index)
     return _maskData[index.y][index.x];
 }
 
-Interface *Level::getInterface()
-{
-    return _interface;
-}
-
-Vector2i Level::getSize()
-{
-    return _size;
-}
-
-LevelType Level::getLevelType()
-{
-    return _type;
-}
-
-void Level::setNextLevelType(LevelType type)
-{
-    _nextLevelType = type;
-}
-
-LevelType Level::getNextLevelType()
-{
-    return _nextLevelType;
-}
-
 void OpenLevel::init()
 {
     Level::init();
+    std::cout << "SMDALMASDLMA" << std::endl;
     setNextLevelType(LevelType_Test);
 }
 
