@@ -46,51 +46,6 @@ void Interface::deinit()
     }
 }
 
-int Interface::getCount()
-{
-    return _elements.size();
-}
-
-void Interface::setInterfaceType(InterfaceType type)
-{
-    _type = type;
-}
-
-InterfaceType Interface::getInterfaceType()
-{
-    return _type;
-}
-
-void Interface::setSize(Vector2i size)
-{
-    _aabb.size = size;
-}
-
-Vector2i Interface::getSize()
-{
-    return _aabb.size;
-}
-
-void Interface::setPosition(Vector2i position)
-{
-    _aabb.center = position;
-}
-
-Vector2i Interface::getPosition()
-{
-    return _aabb.center;
-}
-
-void Interface::setBackgroundColor(Color bgColor)
-{
-    _bgColor = bgColor;
-}
-
-Color Interface::getBackgroundColor()
-{
-    return _bgColor;
-}
-
 void InterfaceLabel::init()
 {
     Interface::init();

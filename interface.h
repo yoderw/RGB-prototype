@@ -26,17 +26,17 @@ typedef struct Interface
     virtual void init();
     virtual void update(double dt);
     virtual void deinit();
-    int getCount();
-    void setInterfaceType(InterfaceType type);
-    InterfaceType getInterfaceType();
-    void setSize(Vector2i size);
-    Vector2i getSize();
-    void setPosition(Vector2i position);
-    Vector2i getPosition();
+    int getCount() { return _elements.size(); }
+    void setInterfaceType(InterfaceType type) { _type = type; }
+    InterfaceType getInterfaceType() { return _type; }
+    void setSize(Vector2i size) { _aabb.size = size; }
+    Vector2i getSize() { return _aabb.size; }
+    void setPosition(Vector2i position) { _aabb.center = position; }
+    Vector2i getPosition() { return _aabb.center; }
     void setAABB(AABBi aabb) { _aabb = aabb; }
     AABBi getAABB() { return _aabb; }
-    void setBackgroundColor(Color bgColor);
-    Color getBackgroundColor();
+    void setBackgroundColor(Color bgColor) { _bgColor = bgColor; }
+    Color getBackgroundColor() { return _bgColor; }
     private:
         std::vector<Interface *> _elements;
         InterfaceType _type;
