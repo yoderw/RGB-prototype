@@ -49,8 +49,8 @@ static void renderInterface(SDL_Renderer *renderer, Interface *interface)
         SDL_SetRenderDrawColor(renderer, bgColor.r, bgColor.g, bgColor.b, bgColor.a);
         rect.w = inter->getSize().x;
         rect.h = inter->getSize().y;
-        rect.x = inter->getPosition().x - rect.x / 2;
-        rect.y = inter->getPosition().y - rect.y / 2;
+        rect.x = inter->getPosition().x;
+        rect.y = inter->getPosition().y;
         SDL_RenderFillRect(renderer, &rect);
         if (inter->getCount() > 0) renderInterface(renderer, inter);
     }

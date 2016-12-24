@@ -85,6 +85,8 @@ typedef struct Level
     virtual void deinit();
     Object getObjectAtIndex(size_t index);
     size_t nObjects() { return objects.size(); }
+    void setTileAtIndex(Vector2i index, int type);
+    void setMaskAtIndex(Vector2i index, int mask);
     int getTileAtIndex(Vector2i index);
     Interface *getInterface() { return _interface; }
     int getMaskAtIndex(Vector2i index);
@@ -92,7 +94,15 @@ typedef struct Level
     LevelType getLevelType() { return _type; }
     void setNextLevelType(LevelType type) { _nextLevelType = type; }
     LevelType getNextLevelType() { return _nextLevelType; }
+    void setName(const char *name) { _name = name; }
+    const char *getName() { return _name; }
+    void loadFromFile(const char *path);
+    void clearLevelData();
+    void freeLevelData();
+    void allocateLevelData();
+    void allocateMaskData();
     private:
+        const char *_name;
         LevelType _type;
         LevelType _nextLevelType;
         Vector2i _size;

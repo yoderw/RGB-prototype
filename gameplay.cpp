@@ -1,6 +1,9 @@
 #include <iostream>
+#include <json.hpp>
 #include "gameplay.h"
 #include "constants.h"
+
+using json = nlohmann::json;
 
 static const int STATIC_LEVEL_W = 32;
 static const int STATIC_LEVEL_H = 24;
@@ -178,21 +181,11 @@ void TestCrate::deinit()
     Object::deinit();
 }
 
-Level::Level(LevelType type) : _type(type), _nextLevelType(type), _interface(new Interface())
+Level::Level(LevelType type) : _levelData(NULL), _maskData(NULL), _type(type), _nextLevelType(type), _interface(new Interface())
 {
     _size = Vector2i(STATIC_LEVEL_W, STATIC_LEVEL_H);
-    _levelData = (int **)malloc(sizeof(int *) * _size.y);
-    _maskData = (int **)malloc(sizeof(int *) * _size.y);
-    for (int y = 0; y < _size.y; y++)
-    {
-        _levelData[y] = (int *)malloc(sizeof(int) * _size.x);
-        _maskData[y] = (int *)malloc(sizeof(int) * _size.x);
-        for (int x = 0; x < _size.x; x++)
-        {
-            _levelData[y][x] = STATIC_LEVEL[y][x];
-            _maskData[y][x] = STATIC_LEVEL_MASK[y][x];
-        }
-    }
+    allocateLevelData();
+    allocateMaskData();
 }
 
 Level::~Level()
@@ -202,13 +195,6 @@ Level::~Level()
         delete objects[objectIndex];
     }
 
-    for (int y = 0; y < _size.y; y++)
-    {
-        free(_levelData[y]);
-        free(_maskData[y]);
-    }
-    free(_levelData);
-    free(_maskData);
 }
 
 void Level::init()
@@ -299,6 +285,18 @@ Object Level::getObjectAtIndex(size_t index)
     return *objects[index];
 }
 
+void Level::setTileAtIndex(Vector2i index, int tile)
+{
+    if (index.x >= _size.x || index.y < 0 || index.y >= _size.y || index.y < 0) return;
+    _levelData[index.y][index.x] = tile;
+}
+
+void Level::setMaskAtIndex(Vector2i index, int mask)
+{
+    if (index.x >= _size.x || index.y < 0 || index.y >= _size.y || index.y < 0) return;
+    _maskData[index.y][index.x] = mask;
+}
+
 int Level::getTileAtIndex(Vector2i index)
 {
     if (index.x >= _size.x || index.y < 0 || index.y >= _size.y || index.y < 0) return -1;
@@ -311,21 +309,150 @@ int Level::getMaskAtIndex(Vector2i index)
     return _maskData[index.y][index.x];
 }
 
+void Level::loadFromFile(const char *path)
+{
+    FILE *file = fopen(path, "rb");
+
+    if (!file)
+    {
+        std::cout << "Unable to open file at \'" << path << "\'" << std::endl;
+        std::cout << "Making new file" << std::endl;
+    }
+
+    fseek(file, 0L, SEEK_END);
+    size_t fileSize = ftell(file);
+    fseek(file, 0L, SEEK_SET);
+    char *fileData = (char *)malloc(sizeof(char) * fileSize);
+
+    if (fread(fileData, sizeof(char), fileSize, file) != fileSize)
+    {
+        std::cout << "Unable to read whole file at \'" << path << "\'" << std::endl;
+        std::cout << "Don't know what to do so crashing" << std::endl;
+        exit(-1);
+    }
+
+    std::cout << "rawFileData: ";
+    for (size_t dataIndex = 0; dataIndex < fileSize; dataIndex++)
+    {
+        std::cout << fileData[dataIndex];
+    }
+
+    std::cout << "fileData: " << fileData << std::endl;
+    auto jsonObject = json::parse(fileData);
+}
+
+void Level::clearLevelData()
+{
+    for (int y = 0; y < getSize().y; y++)
+    {
+        for (int x = 0; x < getSize().x; x++)
+        {
+            _levelData[y][x] = 0;
+            _maskData[y][x] = 0;
+        }
+    }
+}
+
+void Level::freeLevelData()
+{
+    if (_levelData)
+    {
+        for (int y = 0; y < _size.y; y++)
+        {
+            if (_levelData[y])
+            {
+                free(_levelData[y]);
+                _levelData[y] = NULL;
+            }
+        }
+        free(_levelData);
+        _levelData = NULL;
+    }
+
+    if (_maskData)
+    {
+        for (int y = 0; y < _size.y; y++)
+        {
+            if (_maskData[y])
+            {
+                free(_maskData[y]);
+                _maskData[y] = NULL;
+            }
+        }
+        free(_maskData);
+        _maskData = NULL;
+    }
+}
+
+void Level::allocateLevelData()
+{
+    if (!_levelData)
+    {
+        _levelData = (int **)malloc(sizeof(int *) * _size.y);
+        for (int y = 0; y < _size.y; y++)
+        {
+            _levelData[y] = (int *)malloc(sizeof(int) * _size.x);
+        }
+    }
+}
+
+void Level::allocateMaskData()
+{
+    if (!_maskData)
+    {
+        _maskData = (int **)malloc(sizeof(int *) * _size.y);
+        for (int y = 0; y < _size.y; y++)
+        {
+            _maskData[y] = (int *)malloc(sizeof(int) * _size.x);
+        }
+    }
+}
+
 void OpenLevel::init()
 {
     Level::init();
-    std::cout << "SMDALMASDLMA" << std::endl;
-    setNextLevelType(LevelType_Test);
+    setNextLevelType(LevelType_Edit);
 }
+
+InterfaceId mouseBoxId;
 
 void EditLevel::init()
 {
     Level::init();
+    clearLevelData();
+    Vector2i mousePos = Events::getMousePosition();
+    int mouseTileX = (mousePos.x / TILE_SIZE) * TILE_SIZE;
+    int mouseTileY = (mousePos.y / TILE_SIZE) * TILE_SIZE;
+    Vector2i mouseTilePos = Vector2i(mouseTileX, mouseTileY);
+    AABBi mouseBoxBox = AABBi(mouseTilePos, Vector2i(TILE_SIZE, TILE_SIZE));
+    InterfaceBox *mouseBox = new InterfaceBox(mouseBoxBox);
+    mouseBox->setBackgroundColor(Color(100, 100, 100, 100));
+    mouseBoxId = getInterface()->add(mouseBox);
+
+    TestObject *playerObject = new TestObject(Vector2i(TILE_SIZE, TILE_SIZE), Vector2i(10, 10));
+    objects.push_back(playerObject);
 }
 
 void EditLevel::update(double dt)
 {
     Level::update(dt);
+    Vector2i mousePos = Events::getMousePosition();
+    int mouseTileX = (mousePos.x / TILE_SIZE);
+    int mouseTileY = (mousePos.y / TILE_SIZE);
+    Vector2i boxPos = Vector2i(mouseTileX * TILE_SIZE, mouseTileY * TILE_SIZE);
+    getInterface()->get(mouseBoxId)->setPosition(boxPos);
+
+    if (Events::leftButtonIsDown())
+    {
+        setTileAtIndex(Vector2i(mouseTileX, mouseTileY), 1);
+        setMaskAtIndex(Vector2i(mouseTileX, mouseTileY), 1);
+    }
+
+    if (Events::rightButtonIsDown())
+    {
+        setTileAtIndex(Vector2i(mouseTileX, mouseTileY), 0);
+        setMaskAtIndex(Vector2i(mouseTileX, mouseTileY), 0);
+    }
 }
 
 void EditLevel::deinit()
@@ -338,6 +465,7 @@ InterfaceId button1;
 void TestLevel::init()
 {
     Level::init();
+    loadFromFile("test.json");
     TestObject *playerObject = new TestObject(Vector2i(TILE_SIZE, TILE_SIZE), Vector2i(10, 10));
     objects.push_back(playerObject);
     objects.push_back(new TestCrate(Vector2i(5, 5), Color(255, 255, 0, 200)));

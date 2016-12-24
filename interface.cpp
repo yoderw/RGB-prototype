@@ -46,6 +46,16 @@ void Interface::deinit()
     }
 }
 
+InterfaceBox::InterfaceBox(AABBi aabb) : Interface(InterfaceType_Box)
+{
+    setAABB(aabb);
+}
+
+void InterfaceBox::init()
+{
+    Interface::init();
+}
+
 void InterfaceLabel::init()
 {
     Interface::init();

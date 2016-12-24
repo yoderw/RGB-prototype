@@ -38,6 +38,7 @@ typedef struct Controller
 namespace Events
 {
     void updateController(Controller &controller);
+    Vector2i getMousePosition();
     bool keyIsUp(Keycode code);
     bool keyIsDown(Keycode code);
     bool leftButtonIsDown();

@@ -36,6 +36,11 @@ namespace Events
     static Mouse currentMouse;
     static SDL_Event event;
 
+    Vector2i getMousePosition()
+    {
+        return currentMouse.position;
+    }
+
     void updateController(Controller &controller)
     {
         controller = currentController;

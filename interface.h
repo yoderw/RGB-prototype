@@ -10,6 +10,7 @@ typedef int InterfaceId;
 typedef enum InterfaceType
 {
     InterfaceType_Full,
+    InterfaceType_Box,
     InterfaceType_Label,
     InterfaceType_Button,
 } InterfaceType;
@@ -43,6 +44,13 @@ typedef struct Interface
         AABBi _aabb;
         Color _bgColor;
 } Interface;
+
+typedef struct InterfaceBox : public Interface
+{
+    InterfaceBox(AABBi aabb);
+    InterfaceBox() : Interface(InterfaceType_Box) {}
+    virtual void init();
+} InterfaceBox;
 
 typedef struct InterfaceLabel : public Interface
 {
